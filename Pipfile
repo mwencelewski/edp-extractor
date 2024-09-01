@@ -7,6 +7,7 @@ name = "pypi"
 selenium = "*"
 loguru = "*"
 python-decouple = "*"
+2captcha-python = "*"
 
 [dev-packages]
 
