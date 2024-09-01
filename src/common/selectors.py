@@ -20,5 +20,8 @@ TELA_INSTALACAO = {
 }  # type: ignore
 
 SELECT_BILL = {
-        BILL_TAB : "//button[contains(@data-target,'#MES_FILTRO') and contains(.,'AGO/2024')]"
+    "BILL_TAB": "//button[contains(@data-target,'#MES_FILTRO') and contains(.,'{DATA}')]",
+    "OPEN_BILL": "(//a[contains(@class, 'card card-extrato') and contains(.,'Visualizar fatura')])[1]",
+    "DOWNLOAD_BILL": "//div[@id='box-dados-fatura']//a/i[contains(@class,'icon-big d-block pe-7s-cloud-download')]",
+    "CLOSE_MODAL": "//i[@class='icon-edp-circle-error fs-1']",
 }
