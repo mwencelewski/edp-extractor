@@ -9,7 +9,7 @@ EMAIL = config("EMAIL")  # Customer Email
 PASSWORD = config("PASSWORD")  # Customer Password
 SITEKEY = config("SITEKEY")
 APIKEY = config("APIKEY")  # 2Captcha API Key
-
+SEL_SERVICE = config("SELENIUM_URL")
 
 DONWLOAD_FOLDER = os.path.join(ROOT, "downloads")
 LOGS = os.path.join(ROOT, "logs")
