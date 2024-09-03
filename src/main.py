@@ -2,6 +2,7 @@ from libs import edp_client as edp
 from common import config, utils
 from common.config import log
 import argparse
+
 """
 Este script automatiza o processo de extração de faturas da EDP utilizando o Selenium WebDriver. 
 Ele permite que o usuário especifique o número da instalação e os meses para os quais as faturas 
@@ -25,18 +26,17 @@ Exemplo de uso:
 
 """
 
+
 def main_workflow(
     numero_instalacao: str, mes: list[str], headless: bool = True
 ) -> None:
-    
-    
     log.info("Iniciando fluxo de extração de fatura da EDP")
     try:
         log.info(f"Endereço remoto do Selenium {config.SEL_SERVICE}")
         edp_client = edp.EDPClient(
-            url=config.URL,
+            url=config.URL,  # type: ignore
             headless=headless,
-            remote_url=f"{config.SEL_SERVICE}",
+            remote_url=config.SEL_SERVICE,  # type: ignore
         )  # type: ignore
         edp_client.login(username=config.EMAIL, password=config.PASSWORD)  # type: ignore
         edp_client.select_instalation()
@@ -45,8 +45,8 @@ def main_workflow(
         edp_client.close()
     except edp.TimeoutException:
         log.error("Falhou na navegação do site da EDP")
-        edp_client.take_screenshot()
-        edp_client.close()
+        edp_client.take_screenshot()  # type: ignore
+        edp_client.close()  # type: ignore
 
 
 if __name__ == "__main__":
@@ -67,12 +67,10 @@ if __name__ == "__main__":
     )
     argparser.add_argument("--debug", action="store_true")
     args = argparser.parse_args()
-    # numero_instalacao
-    # Mes
     headless = not args.debug
     utils.create_folder(config.DONWLOAD_FOLDER)
     utils.create_folder(config.LOGS)
     main_workflow(
         numero_instalacao=args.numero_instalacao, mes=args.mes, headless=headless
     )
-    # --numero_instalacao 0151129920 --mes 03/2024
+    # --numero_instalacao 0151129920 --mes 03/2024 --mes 04/2024 --debug
