@@ -9,28 +9,87 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from datetime import datetime
 from common import utils
+import os
 
 
 class EDPClient:
-    def __init__(self, url: str, headless: bool = False) -> None:
+
+    """
+    EDPClient é um cliente de automação web projetado para interagir com o portal da EDP (Distribuição de Energia Elétrica) 
+    usando o Selenium WebDriver. Este cliente automatiza tarefas como login, seleção de instalação, 
+    abertura de faturas e download de contas no site da EDP.
+
+    Atributos:
+        driver (WebDriver): A instância do Selenium WebDriver usada para automatizar ações no navegador.
+        captcha (CaptchaClient): Uma instância de CaptchaClient usada para resolver captchas durante o login.
+
+    Métodos:
+        __init__(self, url: str, headless: bool = False, remote_url: str = None):
+            Inicializa o EDPClient com a URL fornecida, opcionalmente executando no modo headless ou utilizando um WebDriver remoto.
+        
+        __go_to_url(self, url: str) -> None:
+            Navega para a URL especificada usando o WebDriver.
+        
+        login(self, username: str, password: str) -> None:
+            Realiza o login no site da EDP utilizando o nome de usuário e senha fornecidos. 
+            Inclui a resolução do captcha, se presente.
+        
+        select_instalation(self, instalation: str = "0151129920") -> None:
+            Seleciona a instalação especificada no site da EDP.
+
+        open_bills(self, instalation: str) -> None:
+            Verifica a instalação selecionada e navega para a seção de faturas.
+        
+        download_bills(self, dates: list) -> list:
+            Faz o download das faturas para as datas especificadas. As datas devem ser fornecidas no formato "MM/AAAA".
+        
+        close(self) -> None:
+            Fecha o navegador e encerra a sessão do WebDriver.
+        
+        take_screenshot(self) -> None:
+            Captura uma captura de tela do estado atual do navegador, salvando-a em um local predefinido.
+    """
+
+    def __init__(
+        self, url: str, headless: bool = False, remote_url: str = None
+    ) -> None:
         log.info("Iniciando cliente EDP")
-        self.driver = webdriver.Chrome()
+        log.info(f"Remote URL = {remote_url}")
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--disable-extensions")
+        # chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_experimental_option(
             "prefs",
             {
                 "download.default_directory": config.DONWLOAD_FOLDER,
                 "download.prompt_for_download": False,
-            },  # Baixar }
+                "download.directory_upgrade": True,
+                "plugins.always_open_pdf_externally": True,
+            },
+        )
+        # chrome_options.binary_location = "/usr/bin/google-chrome"
+        chrome_options.add_argument("--window-size=1280,1024")
+        chrome_options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
         )
         if headless:
+            log.info("Executando headless")
             chrome_options.add_argument("--headless")
         self.captcha = captcha_client.CaptchaClient()
-        self.driver = webdriver.Chrome(options=chrome_options)
+        if remote_url:
+            log.info("Executando em modo remoto")
+            self.driver = webdriver.Remote(
+                command_executor=remote_url, options=chrome_options
+            )
+        else:
+            self.driver = webdriver.Chrome(options=chrome_options)
+        log.info("Navegando para URL da EDP")
         self.__go_to_url(url)
 
     def __go_to_url(self, url: str) -> None:
+        log.info(f"Acessando {url}")
         self.driver.get(url)
 
     def login(self, username: str, password: str) -> None:
@@ -69,12 +128,16 @@ class EDPClient:
         captcha_response = self.captcha.captcha_solver()
 
         if captcha_response:
-            log.info("Quebrando Captch")
+            log.info("Quebrando Captcha")
             self.driver.execute_script(
                 script=f"document.querySelector('textarea#g-recaptcha-response-100000').innerText = '{captcha_response}'"
             )
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, selectors.LOGIN["LOGIN_BTN"]))
+        ).click()
+        log.info("Validando se logou com sucesso")
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, selectors.INSTALACOES["HEADER"]))
         ).click()
         log.info("Login com sucesso")
 
@@ -152,3 +215,12 @@ class EDPClient:
 
         log.info("Todas as faturas baixadas com sucesso")
         return []
+
+    def close(self):
+        log.info("Fechando navegador")
+        self.driver.close()
+        self.driver.quit()
+
+    def take_screenshot(self):
+        path = os.path.join(config.LOGS, "exception.png")
+        self.driver.save_screenshot(path)

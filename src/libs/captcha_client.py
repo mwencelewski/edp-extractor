@@ -15,6 +15,33 @@ class CaptchaException(Exception):
 
 
 class CaptchaClient:
+    """
+    CaptchaClient é uma classe utilizada para resolver captchas utilizando o serviço TwoCaptcha, 
+    que é especialmente útil em processos de automação web onde captchas precisam ser resolvidos 
+    para prosseguir com a execução.
+
+    Classes:
+        CaptchaException(Exception):
+            Exceção personalizada que é lançada quando ocorre uma falha ao tentar resolver o captcha.
+
+        CaptchaClient:
+            Cliente para resolver captchas utilizando a API do TwoCaptcha.
+
+    Métodos:
+        CaptchaException(instalacao: str):
+            Constrói uma exceção personalizada com base na instalação onde a falha ocorreu.
+        
+        __str__(self) -> str:
+            Retorna uma string descritiva da exceção, indicando a instalação onde a tentativa de login falhou.
+
+        solve_captcha(self) -> str:
+            Resolve um captcha utilizando o serviço TwoCaptcha. Retorna o código do captcha resolvido ou 
+            lança uma exceção CaptchaException se a resolução falhar.
+
+        captcha_solver(self) -> str:
+            Tenta resolver o captcha até 4 vezes, logando cada tentativa. Se conseguir resolver, 
+            retorna o código do captcha. Caso contrário, a exceção CaptchaException é lançada.
+    """
     def solve_captcha(self):
         result = solver.recaptcha(
             sitekey=config.SITEKEY,
