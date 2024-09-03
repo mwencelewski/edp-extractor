@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-selenium = "*"
-loguru = "*"
-python-decouple = "*"
-2captcha-python = "*"
+selenium = "4.24.0"
+loguru = "0.7.2"
+python-decouple = "3.8"
+2captcha-python = "1.2.8"
 
 [dev-packages]
 
