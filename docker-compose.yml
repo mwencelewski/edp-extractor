@@ -9,7 +9,7 @@ services:
       - SELENIUM_URL=http://selenium:4444
     env_file:
       - ./src/.env
-    command: python -m pipenv run python src/main.py --numero_instalacao 0151129920 --mes 03/2024
+    command: python -m pipenv run python src/main.py --numero_instalacao 12345678 --mes 03/2024
     depends_on:
       selenium:
         condition: service_healthy
