@@ -49,7 +49,7 @@ O projeto de _Extração de Faturas da EDP_ é uma solução automatizada para a
     ```
 3. Para executar a aplicação localmente:
    ```bash
-     pipenv run python src/main.py --numero_instalcao <numero_instalacao> --meses <meses>
+    pipenv run python src/main.py --numero_instalacao <numero_instalacao> --meses <meses>
    ```
 
 ### Usando Docker
@@ -59,12 +59,21 @@ O projeto de _Extração de Faturas da EDP_ é uma solução automatizada para a
    ```bash
    docker build -t cogni .
    ```
-
-2. Execute a aplicação com Docker Compose:
+2. Parametrizando Docker Compose
+    ```yml
+        app:
+        build:
+        context: .
+        dockerfile: Dockerfile
+        environment:
+        - SELENIUM_URL=http://selenium:4444
+        env_file:
+        - ./src/.env
+        # Coloque o número da instalação e Mês que deseja extrair
+        command: python -m pipenv run python src/main.py --numero_instalacao 12345678 --mes 03/2024
+    ```
+3. Execute a aplicação com Docker Compose:
    ```bash
    docker-compose up
    ```
 
-```
-
-```
